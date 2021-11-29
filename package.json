@@ -1,9 +1,9 @@
-
 {
-	"name": "pixel-tool",
+	"name": "pixel_tool-v2",
 	"version": "0.1.0",
 	"private": true,
 	"dependencies": {
+		"@hookform/error-message": "^2.0.0",
 		"@testing-library/jest-dom": "^5.14.1",
 		"@testing-library/react": "^11.2.7",
 		"@testing-library/user-event": "^12.8.3",
@@ -11,6 +11,7 @@
 		"react-day-picker": "^7.4.10",
 		"react-dom": "^17.0.2",
 		"react-dropdown-select": "^4.7.4",
+		"react-hook-form": "^7.20.4",
 		"react-router-dom": "^5.3.0",
 		"react-scripts": "4.0.3",
 		"react-select": "^5.1.0",
