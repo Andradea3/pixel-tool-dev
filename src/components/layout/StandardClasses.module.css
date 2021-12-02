@@ -75,5 +75,18 @@
 .ruleScope__container {
 	min-height: 200px;
 	width: 100%;
-	background-color: #333;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+}
+.dataField {
+	background-color: #02123A;
+	color: #fafafa;
+	padding: 15px 10px;
+	border-radius: 10px;
+	margin-right: 20px; 
+	margin-bottom: 20px; 
+}
+.title {
+	margin-bottom: 40px;
 }

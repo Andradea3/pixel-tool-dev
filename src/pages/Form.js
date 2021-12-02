@@ -14,21 +14,27 @@ import { ErrorMessage } from "@hookform/error-message";
 
 export default function Form() {
 	const [formStep, setFormStep] = useState(0);
+	const [modalDisplay, setModalDisplay] = useState(false); 
+
 	const {
 		watch,
 		register,
 		setValue,
 		setError,
+		unregister,
 		formState: { errors, isValid },
 	} = useForm({
 		mode: "all",
+		defaultValues: {
+			requestingClient: "",
+			scope: "",
+		}
 	});
 
-    function renderDataBoxes() {
-        console.log(Array.from(watch))
-    }
+	
+
 	return (
-		<form>
+		<form >
 			{formStep >= 0 && (
 				<div id="first-step" className={formStep === 0 ? classes.displayBlock : classes.displayHidden}>
 					<h1>Request Info</h1>
@@ -74,9 +80,6 @@ export default function Form() {
 					</div>
 					<ReactDayPicker
 						setValue={setValue}
-						setError={setError}
-						register={register}
-						watch={watch}
 					/>
 					{watch("endDate") === undefined ? (
 						<p className={classes.errorMessage}>This field is required</p>
@@ -112,7 +115,7 @@ export default function Form() {
 
 			{formStep >= 1 && (
 				<div id="second-step" className={formStep === 1 ? classes.displayBlock : classes.displayHidden}>
-					<h1>Scope of the Rule</h1>
+					<h1 className={classes.title}>Scope of the Rule</h1>
 					<div className={classes.ruleScope__container}>
                         {
                             renderDataBoxes()
@@ -120,19 +123,31 @@ export default function Form() {
                     </div>
 					<h1>TrueMetrics</h1>
 					<label></label>
-					<ScopeSelector />
+					{/*TODO Tal vez dejar un valor predeterminado ? */}
+					<ScopeSelector 
+						setValue={setValue}
+						watch={watch}
+						unregister={unregister}
+					/>
 					<br />
 					<Card>
 						<div className={classes.control}>
 							<label htmlFor="context" >Context ID</label>
-							<input type="text" id="context" value="something" readOnly/>
-							<label htmlFor="ticketingevents">Ticketing Event IDs</label>
-							<input
-								type="text"
-								placeholder=" 123,124,156..."
-								required
-								id="ticketingevents"
-							/>
+							<input type="text" id="context" value={watch("contextID")} readOnly/>
+							{watch("scope") === "Event" && (
+								<>
+									<label htmlFor="ticketingevents">Ticketing Event IDs</label>
+									<input
+										type="text"
+										placeholder=" 123,124,156..."
+										
+										id="ticketingevents"
+										{...register("ticketingEvents", { required: true })}
+									/>
+									{errors.ticketingEvents && (<p className={classes.errorMessage}>This field is required</p>)}
+								</>
+							)}
+							
 						</div>
 					</Card>
 				</div>
@@ -140,16 +155,33 @@ export default function Form() {
 
 			{formStep >= 2 && (
 				<div id="third-step" className={formStep === 2 ? classes.displayBlock : classes.displayHidden}>
+					<h1 className={classes.title}>Scope of the Rule</h1>
+					<div className={classes.ruleScope__container}>
+                        {
+                            renderDataBoxes()
+                        }
+                    </div>
 					<h1>Pages to Fire</h1>
-					<PageSelector />
+					<PageSelector 
+						setVal={setValue}
+						watch={watch}
+					/>
 					<br />
 				</div>
 			)}
 
 			{formStep >= 3 && (
 				<div id="fourth-step" className={formStep === 3 ? classes.displayBlock : classes.displayHidden}>
+					<h1 className={classes.title}>Scope of the Rule</h1>
+					<div className={classes.ruleScope__container}>
+                        {
+                            renderDataBoxes()
+                        }
+                    </div>
 					<h1>Pixels to be Placed</h1>
-					<PixelCard />
+					<PixelCard 
+						register={register}
+					/>
 					<br />
 				</div>
 			)}
@@ -174,9 +206,24 @@ export default function Form() {
 			return (
 				<div className={classes.actions}>
 					<button
-						disabled={firstScreenInvalid()}
+						disabled={currentFormInvalid(0)}
 						onClick={nextScreen}
 						type="button"
+					>
+						Next
+					</button>
+				</div>
+			);
+		} else if (formStep === 2) {
+			return (
+				<div className={classes.actions}>
+					<button onClick={previousScreen} type="button">Go back</button>
+					<button
+						disabled={currentFormInvalid(2)}
+						type="button"
+						onClick={() => {
+							validateCheckBoxes();
+						}}
 					>
 						Next
 					</button>
@@ -186,18 +233,32 @@ export default function Form() {
 			return (
 				<div className={classes.actions}>
 					<button onClick={previousScreen} type="button">Go back</button>
-					<button onClick={nextScreen} type="button">
+					<button
+						disabled={currentFormInvalid(formStep)} 
+						onClick={nextScreen} 
+						type="button"
+					>
 						Next
 					</button>
 				</div>
 			);
 		}
 	}
-	function firstScreenInvalid() {
-		if (isValid === false || watch("endDate") === undefined) {
-			return true;
+	function currentFormInvalid(pageNumber) {
+		if (pageNumber === 0) {
+			if (isValid === false || watch("endDate") === undefined) {
+				return true;
+			}
+			return null;
+		} else if (pageNumber === 1) {
+			if (isValid === false || watch("scope") === "") {
+				return true;
+			}
+		} else if (pageNumber === 2) {
+			if (watch("pixelPageScope") === undefined) {
+				return true;
+			}
 		}
-		return null;
 	}
 	function nextScreen() {
 		setFormStep((formStep) => formStep + 1);
@@ -205,4 +266,40 @@ export default function Form() {
     function previousScreen() {
         setFormStep((formStep) => formStep - 1);
     }
+	function renderDataBoxes() {
+
+		// en la tercera pagina en pixelPageScope, podemos mostrarlo asi
+		//TODO pixelPageScope: Custom (EDP, Select ticket, Sign In)
+
+		var currentDataObj = watch();
+        var currentDataArr = Object.keys(currentDataObj).map(currentProperty => {
+            return {
+				fieldName: currentProperty,
+				fieldValue: currentDataObj[currentProperty]
+            }
+        });
+		var $currentData = currentDataArr.map(field => {
+			return (
+				<div key={field.fieldName} className={classes.dataField}>{`${field.fieldName}: ${field.fieldValue}`}</div>
+			)
+		})
+        return (
+			<>
+				{$currentData}
+			</>
+		)
+    }
+	function validateCheckBoxes() {
+		const $checkBoxes = Array.from(document.querySelectorAll('input[type="checkbox"]'));
+		const $validCheckboxes = $checkBoxes.filter($checkbox => $checkbox.checked).map($checkbox => $checkbox.previousElementSibling.textContent);
+		console.log($validCheckboxes);
+		if ($validCheckboxes.length === 0) {
+			setModalDisplay(true);
+			return false;
+		} else {
+			nextScreen();
+			setValue("Pages", [...$validCheckboxes])
+			return true;
+		}
+	}
 }

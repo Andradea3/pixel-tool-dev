@@ -10,114 +10,447 @@ const PageOptions = [
   { label: "Custom", value: "customScope" },
 ];
 
-class PageSelector extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      isChecked: false,
-    };
+function PageSelector({setVal, watch}) {
 
-    this.handleInputChange = this.handleInputChange.bind(this);
-  }
+  
 
-  handleInputChange(event) {
-    const target = event.target;
-    const value = target.type === "checkbox" ? target.isChecked : target.value;
-    const name = target.name;
+  //Mientras el usuario no haya escogido ningun page scope checkboxes estarán deshabilitadas
 
-    this.setState({
-      [name]: value,
-    });
-  }
-
-  setValue = value => {
-    this.setState(prevState => ({
-      select: {
-        ...prevState.select,
-        value
-      }
-    }));
-    console.log(value)
+  function setValue (values) {
+    const pageScope = values[0].label;
+    setVal("pixelPageScope", pageScope)
+    console.log(values[0].label);
   };
-
-  render() {
-    return (
-      <div>
-        <div className={classes.control}>
-          <label>Page scope of the pixel: </label>
-          <br />
-          <Select
-            options={PageOptions}
-           // value={this.state.value}
-            onChange={(values) => this.setValue(values)} 
-          ></Select>
-
-          <br />
-          {/* <input type="submit" value="Submit" /> */}
-        </div>
-        <Card>
-          <h3>Pages</h3>
-          <div className={classes.control}>
-            EDP:
-            <input
-              name="edp"
-              type="checkbox"
-              checked={this.state.isChecked}
-              onChange={this.handleInputChange}
-            />
-            <br />
-            Select Tickets:
-            <input
-              name="selecttickets"
-              type="checkbox"
-              checked={this.state.isChecked}
-              onChange={this.handleInputChange}
-            />
-            <br />
-            Method of Delivery:
-            <input
-              name="mod"
-              type="checkbox"
-              checked={this.state.isChecked}
-              onChange={this.handleInputChange}
-            />
-            <br />
-            Sign In:
-            <input
-              name="signin"
-              type="checkbox"
-              checked={this.state.isChecked}
-              onChange={this.handleInputChange}
-            />
-            <br />
-            Enter Payment:
-            <input
-              name="payment"
-              type="checkbox"
-              checked={this.state.isChecked}
-              onChange={this.handleInputChange}
-            />
-            <br />
-            Verify Purchase:
-            <input
-              name="verify"
-              type="checkbox"
-              checked={this.state.isChecked}
-              onChange={this.handleInputChange}
-            />
-            <br />
-            Confirmation
-            <input
-              name="confirmation"
-              type="checkbox"
-              checked={this.state.isChecked}
-              onChange={this.handleInputChange}
-            />
-          </div>
-        </Card>
-      </div>
-    );
+  
+  if (watch("pixelPageScope") === "Remarketing") {
+    console.log("something");
   }
+  
+  return (
+    <div>
+      <div className={classes.control}>
+        <label>Page scope of the pixel: </label>
+        <br />
+        <Select
+          options={PageOptions}
+          onChange={(values) => setValue(values)} 
+        ></Select>
+
+        <br />
+      </div>
+      <Card>
+        <h3>Pages</h3>
+        <div className={classes.control}>
+          
+          {!watch("pixelPageScope") && (
+            <DisabledInputs />
+          )}
+          
+          {watch("pixelPageScope") === "Remarketing" && (
+            <RemarketingInputs />
+          )}
+
+          {watch("pixelPageScope") === "Conversion" && (
+            <ConversionInputs />
+          )}
+          {watch("pixelPageScope") === "Full Flow" && (
+            <FullFlowInputs />
+          )}
+          {watch("pixelPageScope") === "Custom" && (
+            <CustomInputs />
+          )}
+        </div>
+      </Card>
+    </div>
+  );
+
+  function DisabledInputs() {
+    
+    return(
+      <>
+        <label htmlFor="edp">
+          <span>EDP</span>
+          <input 
+          name="edp"  
+          id="edp"
+          type="checkbox"
+          disabled
+        />
+        </label>
+        <label htmlFor="selectTickets">
+          <span>Select Tickets</span>
+          <input 
+            name="selectTickets"  
+            type="checkbox"
+            id="selectTickets"
+            disabled
+          />
+        </label>
+        
+        <label htmlFor="mod">
+          <span>Method of Delivery</span>
+          <input
+            name="mod"
+            type="checkbox"
+            id="mod"
+            disabled
+          />
+        </label>
+
+        <label htmlFor="signin">
+          <span>Sign In</span>
+          <input
+            name="signin"
+            type="checkbox"
+            id="signin"
+            disabled
+          />
+        </label>
+        
+        <label htmlFor="payment">
+          <span>Enter Payment</span>
+          <input
+            name="payment"
+            type="checkbox"
+            id="payment"
+            disabled
+          />
+        </label>
+        
+        <label htmlFor="verify">
+          <span>Verify Purchase</span>
+          <input
+            name="verify"
+            id="verify"
+            type="checkbox"
+            disabled
+          />
+        </label>
+        
+        <label htmlFor="confirmation">
+          <span>Confirmation</span>
+          <input
+            name="confirmation"
+            type="checkbox"
+            id="confimation"
+            disabled
+          />
+        </label>
+      </>
+    )
+  }
+  function RemarketingInputs() {
+    return (
+      <>
+       <label htmlFor="edp">
+          <span>EDP</span>
+          <input 
+          name="edp"  
+          id="edp"
+          type="checkbox"
+          
+        />
+        </label>
+        <label htmlFor="selectTickets">
+          <span>Select Tickets</span>
+          <input 
+            name="selectTickets"  
+            type="checkbox"
+            id="selectTickets"
+            checked
+          />
+        </label>
+        
+        <label htmlFor="mod">
+          <span>Method of Delivery</span>
+          <input
+            name="mod"
+            type="checkbox"
+            id="mod"
+            checked
+          />
+        </label>
+
+        <label htmlFor="signin">
+          <span>Sign In</span>
+          <input
+            name="signin"
+            type="checkbox"
+            id="signin"
+            
+          />
+        </label>
+        
+        <label htmlFor="payment">
+          <span>Enter Payment</span>
+          <input
+            name="payment"
+            type="checkbox"
+            id="payment"
+            
+          />
+        </label>
+        
+        <label htmlFor="verify">
+          <span>Verify Purchase</span>
+          <input
+            name="verify"
+            id="verify"
+            type="checkbox"
+            
+          />
+        </label>
+        
+        <label htmlFor="confirmation">
+          <span>Confirmation</span>
+          <input
+            name="confirmation"
+            type="checkbox"
+            id="confimation"
+            checked
+          />
+        </label>
+        
+      </>
+    )
+  }
+  function ConversionInputs() {
+    return(
+      <>
+       <label htmlFor="edp">
+          <span>EDP</span>
+          <input 
+          name="edp"  
+          id="edp"
+          type="checkbox"
+          
+        />
+        </label>
+        <label htmlFor="selectTickets">
+          <span>Select Tickets</span>
+          <input 
+            name="selectTickets"  
+            type="checkbox"
+            id="selectTickets"
+            
+          />
+        </label>
+        
+        <label htmlFor="mod">
+          <span>Method of Delivery</span>
+          <input
+            name="mod"
+            type="checkbox"
+            id="mod"
+            
+          />
+        </label>
+
+        <label htmlFor="signin">
+          <span>Sign In</span>
+          <input
+            name="signin"
+            type="checkbox"
+            id="signin"
+            
+          />
+        </label>
+        
+        <label htmlFor="payment">
+          <span>Enter Payment</span>
+          <input
+            name="payment"
+            type="checkbox"
+            id="payment"
+            
+          />
+        </label>
+        
+        <label htmlFor="verify">
+          <span>Verify Purchase</span>
+          <input
+            name="verify"
+            id="verify"
+            type="checkbox"
+          />
+        </label>
+        
+        <label htmlFor="confirmation">
+          <span>Confirmation</span>
+          <input
+            name="confirmation"
+            type="checkbox"
+            id="confimation"
+            checked
+          />
+        </label>
+      </>
+    )
+  }
+  function FullFlowInputs() {
+    return (
+      <>
+        
+        <label htmlFor="edp">
+          <span>EDP</span>
+          <input 
+          name="edp"  
+          id="edp"
+          type="checkbox"
+          checked
+        />
+        </label>
+        <label htmlFor="selectTickets">
+          <span>Select Tickets</span>
+          <input 
+            name="selectTickets"  
+            type="checkbox"
+            id="selectTickets"
+            checked
+          />
+        </label>
+        
+        <label htmlFor="mod">
+          <span>Method of Delivery</span>
+          <input
+            name="mod"
+            type="checkbox"
+            id="mod"
+            checked
+          />
+        </label>
+
+        <label htmlFor="signin">
+          <span>Sign In</span>
+          <input
+            name="signin"
+            type="checkbox"
+            id="signin"
+            checked
+          />
+        </label>
+        
+        <label htmlFor="payment">
+          <span>Enter Payment</span>
+          <input
+            name="payment"
+            type="checkbox"
+            id="payment"
+            checked
+          />
+        </label>
+        
+        <label htmlFor="verify">
+          <span>Verify Purchase</span>
+          <input
+            name="verify"
+            id="verify"
+            type="checkbox"
+            checked
+          />
+        </label>
+        
+        <label htmlFor="confirmation">
+          <span>Confirmation</span>
+          <input
+            name="confirmation"
+            type="checkbox"
+            id="confimation"
+            checked
+          />
+        </label>
+      </>
+    )
+  }
+  function CustomInputs() {
+    return (
+      <>
+        
+        <label htmlFor="edp">
+          <span>EDP</span>
+          <input 
+          name="edp"  
+          id="edp"
+          type="checkbox"
+          
+        />
+        </label>
+        <label htmlFor="selectTickets">
+          <span>Select Tickets</span>
+          <input 
+            name="selectTickets"  
+            type="checkbox"
+            id="selectTickets"
+            
+          />
+        </label>
+        
+        <label htmlFor="mod">
+          <span>Method of Delivery</span>
+          <input
+            name="mod"
+            type="checkbox"
+            id="mod"
+            
+          />
+        </label>
+
+        <label htmlFor="signin">
+          <span>Sign In</span>
+          <input
+            name="signin"
+            type="checkbox"
+            id="signin"
+            
+          />
+        </label>
+        
+        <label htmlFor="payment">
+          <span>Enter Payment</span>
+          <input
+            name="payment"
+            type="checkbox"
+            id="payment"
+            
+          />
+        </label>
+        
+        <label htmlFor="verify">
+          <span>Verify Purchase</span>
+          <input
+            name="verify"
+            id="verify"
+            type="checkbox"
+            
+          />
+        </label>
+        
+        <label htmlFor="confirmation">
+          <span>Confirmation</span>
+          <input
+            name="confirmation"
+            type="checkbox"
+            id="confimation"
+            
+          />
+        </label>
+      </>
+    )
+  }
+  
 }
 
+
 export default PageSelector;
+
+
+
+// {
+//   pageScopePixel: {
+//     name: "Remarketing",
+//     values: ["", "", "", "", ""]
+//   }
+// }
+
+
+// pageScopePixel.values.push()

@@ -8,54 +8,30 @@ const ScopeOptions = [
   {label: "Event", value: "eventScope"}
 ];
 
-class PixelDropdown extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      selected: null,
-    };
-
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-  }
-
-  handleChange(event) {
-    this.setState({ value: event.target.value });
-    const setting = event.target.value
-    console.log({setting});
-  }
-
-  handleSubmit(event) {
-    event.preventDefault();
-    console.log("submit");
-  }
+function PixelDropdown({setValue, resetField, watch, unregister}) {
   
-  setValue = value => {
-    this.setState(prevState => ({
-      select: {
-        ...prevState.select,
-        value
-      }
-    }));
-    console.log(value)
+  function handleChange(newInput) {
+    const currentScope = watch("scope");
+    const newScope = newInput[0].label;
+    
+    if (currentScope === "Event" && newScope === "Context") {
+      unregister("ticketingEvents");
+    }
+    setValue("scope", newScope);
   };
 
-  render() {
-
-    return (
-      <div className={classes.control}>
-        <div>
-          <label>Business scope of the pixel:</label>
-          <br />
-          <Select options={ScopeOptions} value={this.state.value} onChange={(values) => this.setValue(values)} >
-          </Select>
-          <br />
-        </div>
-        {/* <input type="submit" value="Submit" /> */}
-        this is supposed to be where?
+  return (
+    <div className={classes.control}>
+      <div>
+        <label>Business scope of the pixel:</label>
+        <br />
+        <Select options={ScopeOptions} onChange={handleChange} placeholder="Pick a scope..." >
+        </Select>
+        <br />
       </div>
-    );
-  }
+    </div>
+  );
+  
 }
 
 export default PixelDropdown;
