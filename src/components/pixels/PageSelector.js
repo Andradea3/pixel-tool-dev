@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useEffect } from "react";
 import Select from "react-dropdown-select";
 import classes from "../layout/StandardClasses.module.css";
 import Card from "../ui/Card";
@@ -10,22 +10,13 @@ const PageOptions = [
   { label: "Custom", value: "customScope" },
 ];
 
-function PageSelector({setVal, watch}) {
-
-  
-
-  //Mientras el usuario no haya escogido ningun page scope checkboxes estarán deshabilitadas
+function PageSelector({setVal, watch, validateCheckBoxes}) {
 
   function setValue (values) {
     const pageScope = values[0].label;
     setVal("pixelPageScope", pageScope)
-    console.log(values[0].label);
   };
-  
-  if (watch("pixelPageScope") === "Remarketing") {
-    console.log("something");
-  }
-  
+
   return (
     <div>
       <div className={classes.control}>
@@ -40,12 +31,12 @@ function PageSelector({setVal, watch}) {
       </div>
       <Card>
         <h3>Pages</h3>
-        <div className={classes.control}>
+        <div className={classes.control} onClick={validateCheckBoxes}>
           
           {!watch("pixelPageScope") && (
             <DisabledInputs />
           )}
-          
+
           {watch("pixelPageScope") === "Remarketing" && (
             <RemarketingInputs />
           )}
@@ -53,12 +44,15 @@ function PageSelector({setVal, watch}) {
           {watch("pixelPageScope") === "Conversion" && (
             <ConversionInputs />
           )}
+
           {watch("pixelPageScope") === "Full Flow" && (
             <FullFlowInputs />
           )}
+
           {watch("pixelPageScope") === "Custom" && (
             <CustomInputs />
           )}
+          
         </div>
       </Card>
     </div>
@@ -148,7 +142,7 @@ function PageSelector({setVal, watch}) {
           name="edp"  
           id="edp"
           type="checkbox"
-          
+          disabled
         />
         </label>
         <label htmlFor="selectTickets">
@@ -158,6 +152,7 @@ function PageSelector({setVal, watch}) {
             type="checkbox"
             id="selectTickets"
             checked
+            readOnly
           />
         </label>
         
@@ -168,6 +163,7 @@ function PageSelector({setVal, watch}) {
             type="checkbox"
             id="mod"
             checked
+            readOnly
           />
         </label>
 
@@ -177,7 +173,7 @@ function PageSelector({setVal, watch}) {
             name="signin"
             type="checkbox"
             id="signin"
-            
+            disabled
           />
         </label>
         
@@ -187,7 +183,7 @@ function PageSelector({setVal, watch}) {
             name="payment"
             type="checkbox"
             id="payment"
-            
+            disabled
           />
         </label>
         
@@ -197,7 +193,7 @@ function PageSelector({setVal, watch}) {
             name="verify"
             id="verify"
             type="checkbox"
-            
+            disabled
           />
         </label>
         
@@ -208,6 +204,7 @@ function PageSelector({setVal, watch}) {
             type="checkbox"
             id="confimation"
             checked
+            readOnly
           />
         </label>
         
@@ -223,7 +220,7 @@ function PageSelector({setVal, watch}) {
           name="edp"  
           id="edp"
           type="checkbox"
-          
+          disabled
         />
         </label>
         <label htmlFor="selectTickets">
@@ -232,7 +229,7 @@ function PageSelector({setVal, watch}) {
             name="selectTickets"  
             type="checkbox"
             id="selectTickets"
-            
+            disabled
           />
         </label>
         
@@ -242,7 +239,7 @@ function PageSelector({setVal, watch}) {
             name="mod"
             type="checkbox"
             id="mod"
-            
+            disabled
           />
         </label>
 
@@ -252,7 +249,7 @@ function PageSelector({setVal, watch}) {
             name="signin"
             type="checkbox"
             id="signin"
-            
+            disabled
           />
         </label>
         
@@ -262,7 +259,7 @@ function PageSelector({setVal, watch}) {
             name="payment"
             type="checkbox"
             id="payment"
-            
+            disabled
           />
         </label>
         
@@ -272,6 +269,7 @@ function PageSelector({setVal, watch}) {
             name="verify"
             id="verify"
             type="checkbox"
+            disabled
           />
         </label>
         
@@ -282,6 +280,7 @@ function PageSelector({setVal, watch}) {
             type="checkbox"
             id="confimation"
             checked
+            readOnly
           />
         </label>
       </>
@@ -298,6 +297,7 @@ function PageSelector({setVal, watch}) {
           id="edp"
           type="checkbox"
           checked
+          readOnly
         />
         </label>
         <label htmlFor="selectTickets">
@@ -307,6 +307,7 @@ function PageSelector({setVal, watch}) {
             type="checkbox"
             id="selectTickets"
             checked
+            readOnly
           />
         </label>
         
@@ -317,6 +318,7 @@ function PageSelector({setVal, watch}) {
             type="checkbox"
             id="mod"
             checked
+            readOnly
           />
         </label>
 
@@ -327,6 +329,7 @@ function PageSelector({setVal, watch}) {
             type="checkbox"
             id="signin"
             checked
+            readOnly
           />
         </label>
         
@@ -337,6 +340,7 @@ function PageSelector({setVal, watch}) {
             type="checkbox"
             id="payment"
             checked
+            readOnly
           />
         </label>
         
@@ -347,6 +351,7 @@ function PageSelector({setVal, watch}) {
             id="verify"
             type="checkbox"
             checked
+            readOnly
           />
         </label>
         
@@ -357,12 +362,23 @@ function PageSelector({setVal, watch}) {
             type="checkbox"
             id="confimation"
             checked
+            readOnly
           />
         </label>
       </>
     )
   }
   function CustomInputs() {
+
+    //Convert watch() to arr
+    // !TODO conditionally render defaultChecked elements
+    const currentPagesToFire = watch("Pages") ;
+    if (currentPagesToFire !== undefined) {
+
+      var currentDataArr = Array.from(currentPagesToFire);
+      
+    }
+
     return (
       <>
         
@@ -371,8 +387,8 @@ function PageSelector({setVal, watch}) {
           <input 
           name="edp"  
           id="edp"
-          type="checkbox"
-          
+          type="checkbox" 
+          defaultChecked={currentPagesToFire ? currentDataArr.includes("EDP") : false}
         />
         </label>
         <label htmlFor="selectTickets">
@@ -381,7 +397,7 @@ function PageSelector({setVal, watch}) {
             name="selectTickets"  
             type="checkbox"
             id="selectTickets"
-            
+            defaultChecked={currentPagesToFire ? currentDataArr.includes("Select Tickets") : false}
           />
         </label>
         
@@ -391,7 +407,7 @@ function PageSelector({setVal, watch}) {
             name="mod"
             type="checkbox"
             id="mod"
-            
+            defaultChecked={currentPagesToFire ? currentDataArr.includes("Method of Delivery") : false}
           />
         </label>
 
@@ -401,7 +417,7 @@ function PageSelector({setVal, watch}) {
             name="signin"
             type="checkbox"
             id="signin"
-            
+            defaultChecked={currentPagesToFire ? currentDataArr.includes("Sign In") : false}
           />
         </label>
         
@@ -411,7 +427,7 @@ function PageSelector({setVal, watch}) {
             name="payment"
             type="checkbox"
             id="payment"
-            
+            defaultChecked={currentPagesToFire ? currentDataArr.includes("Enter Payment") : false}
           />
         </label>
         
@@ -421,7 +437,7 @@ function PageSelector({setVal, watch}) {
             name="verify"
             id="verify"
             type="checkbox"
-            
+            defaultChecked={currentPagesToFire ? currentDataArr.includes("Verify Purchase") : false}
           />
         </label>
         
@@ -431,7 +447,7 @@ function PageSelector({setVal, watch}) {
             name="confirmation"
             type="checkbox"
             id="confimation"
-            
+            defaultChecked={currentPagesToFire ? currentDataArr.includes("Confirmation") : false}
           />
         </label>
       </>
@@ -442,15 +458,3 @@ function PageSelector({setVal, watch}) {
 
 
 export default PageSelector;
-
-
-
-// {
-//   pageScopePixel: {
-//     name: "Remarketing",
-//     values: ["", "", "", "", ""]
-//   }
-// }
-
-
-// pageScopePixel.values.push()

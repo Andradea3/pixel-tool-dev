@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import classes from "../components/layout/StandardClasses.module.css";
 import { useForm } from "react-hook-form";
 import ReactDayPicker from "../components/pixels/DatePicker";
@@ -6,21 +6,13 @@ import Card from "../components/ui/Card";
 import ScopeSelector from "../components/pixels/ScopeSelector";
 import PageSelector from "../components/pixels/PageSelector";
 import PixelCard from "../components/pixels/PixelCard";
-import InfoPage from "../components/form/Info";
-import ScopePage from "../components/form/Scope";
-import PagePage from "../components/form/Pages";
-import PixelPage from "../components/form/Pixel";
-import { ErrorMessage } from "@hookform/error-message";
 
 export default function Form() {
 	const [formStep, setFormStep] = useState(0);
-	const [modalDisplay, setModalDisplay] = useState(false); 
-
 	const {
 		watch,
 		register,
 		setValue,
-		setError,
 		unregister,
 		formState: { errors, isValid },
 	} = useForm({
@@ -88,14 +80,14 @@ export default function Form() {
 					<div className={classes.control}>
 						<label htmlFor="description">Brief Description</label>
 						{/* TODO: change the input to textArea */}
-						<input
-							type="text"
+						<textarea
 							required
-							name="briefDescription"
+							rows="4"
+							columns="10"
 							id="description"
 							autoComplete="off"
 							{...register("briefDescription", { required: true })}
-						/>
+						></textarea>
 						{errors.briefDescription && (
 							<p className={classes.errorMessage}>This field is required</p>
 						)}
@@ -105,7 +97,6 @@ export default function Form() {
 							type="text"
 							placeholder=" nba.com"
 							id="domains"
-							name="crossDomainTracking"
 							autoComplete="off"
 							{...register("crossDomainTracking")}
 						/>
@@ -121,9 +112,8 @@ export default function Form() {
                             renderDataBoxes()
                         }
                     </div>
-					<h1>TrueMetrics</h1>
+					<h1>Client</h1>
 					<label></label>
-					{/*TODO Tal vez dejar un valor predeterminado ? */}
 					<ScopeSelector 
 						setValue={setValue}
 						watch={watch}
@@ -163,10 +153,13 @@ export default function Form() {
                     </div>
 					<h1>Pages to Fire</h1>
 					<PageSelector 
+						validateCheckBoxes={validateCheckBoxes}
 						setVal={setValue}
 						watch={watch}
 					/>
-					<br />
+					{/* displays error if user has not selected */}
+					<p className={`${classes.errorMessage} ${classes.pageError} ${classes.displayHidden}`}>Select a page first</p>
+					
 				</div>
 			)}
 
@@ -181,16 +174,21 @@ export default function Form() {
 					<h1>Pixels to be Placed</h1>
 					<PixelCard 
 						register={register}
+						unregister={unregister}
+						formErrors={errors}
 					/>
 					<br />
 				</div>
 			)}
+
 			{renderButtons(formStep)}
+
 			<pre>{JSON.stringify(watch(), null, 2)}</pre>
 		</form>
 	);
 
 	function renderButtons(formStep) {
+		
 		if (formStep > 3) {
 			return null;
 		} else if (formStep == 3) {
@@ -219,11 +217,9 @@ export default function Form() {
 				<div className={classes.actions}>
 					<button onClick={previousScreen} type="button">Go back</button>
 					<button
-						disabled={currentFormInvalid(2)}
+						disabled={currentFormInvalid(formStep)}
 						type="button"
-						onClick={() => {
-							validateCheckBoxes();
-						}}
+						onClick={validateCheckBoxes}
 					>
 						Next
 					</button>
@@ -245,6 +241,7 @@ export default function Form() {
 		}
 	}
 	function currentFormInvalid(pageNumber) {
+
 		if (pageNumber === 0) {
 			if (isValid === false || watch("endDate") === undefined) {
 				return true;
@@ -256,8 +253,10 @@ export default function Form() {
 			}
 		} else if (pageNumber === 2) {
 			if (watch("pixelPageScope") === undefined) {
+				
 				return true;
 			}
+
 		}
 	}
 	function nextScreen() {
@@ -268,9 +267,6 @@ export default function Form() {
     }
 	function renderDataBoxes() {
 
-		// en la tercera pagina en pixelPageScope, podemos mostrarlo asi
-		//TODO pixelPageScope: Custom (EDP, Select ticket, Sign In)
-
 		var currentDataObj = watch();
         var currentDataArr = Object.keys(currentDataObj).map(currentProperty => {
             return {
@@ -278,6 +274,7 @@ export default function Form() {
 				fieldValue: currentDataObj[currentProperty]
             }
         });
+		
 		var $currentData = currentDataArr.map(field => {
 			return (
 				<div key={field.fieldName} className={classes.dataField}>{`${field.fieldName}: ${field.fieldValue}`}</div>
@@ -289,17 +286,32 @@ export default function Form() {
 			</>
 		)
     }
-	function validateCheckBoxes() {
+	// from Pages to fire
+	function validateCheckBoxes(event) {
+		
+		// Fetching DOM elements
 		const $checkBoxes = Array.from(document.querySelectorAll('input[type="checkbox"]'));
 		const $validCheckboxes = $checkBoxes.filter($checkbox => $checkbox.checked).map($checkbox => $checkbox.previousElementSibling.textContent);
-		console.log($validCheckboxes);
-		if ($validCheckboxes.length === 0) {
-			setModalDisplay(true);
-			return false;
-		} else {
-			nextScreen();
-			setValue("Pages", [...$validCheckboxes])
-			return true;
+		const $errorMessage = document.querySelector(`.${classes.errorMessage}.${classes.pageError}`);
+		
+		// If what fires the event is a checkbox, this way we can save some space in the ifs
+		const isCheckbox = (event.target instanceof HTMLLabelElement || event.target instanceof HTMLInputElement || event.target instanceof HTMLSpanElement) ? true : false;
+		
+		
+		if (isCheckbox && !currentFormInvalid(2)) {
+			$errorMessage.classList.add(`${classes.displayHidden}`);
+			
+		} else if (event.target instanceof HTMLButtonElement) {
+
+			if ($validCheckboxes.length === 0 && !currentFormInvalid(2)) {
+				$errorMessage.classList.remove(`${classes.displayHidden}`);
+				return false;
+			} else {
+				// if everything is ok
+				nextScreen();
+				setValue("Pages", [...$validCheckboxes]);
+				return true;
+			}
 		}
 	}
 }
