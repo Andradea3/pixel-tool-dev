@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import classes from "../components/layout/StandardClasses.module.css";
 import { useForm } from "react-hook-form";
 import ReactDayPicker from "../components/pixels/DatePicker";
@@ -6,6 +6,7 @@ import Card from "../components/ui/Card";
 import ScopeSelector from "../components/pixels/ScopeSelector";
 import PageSelector from "../components/pixels/PageSelector";
 import PixelCard from "../components/pixels/PixelCard";
+
 
 export default function Form() {
 	const [formStep, setFormStep] = useState(0);
@@ -32,6 +33,7 @@ export default function Form() {
 						formStep === 0 ? classes.displayBlock : classes.displayHidden
 					}
 				>
+					
 					<h1>Request Info</h1>
 					<div className={classes.control}>
 						<label htmlFor="client">Requesting Client</label>
@@ -80,7 +82,6 @@ export default function Form() {
 
 					<div className={classes.control}>
 						<label htmlFor="description">Brief Description</label>
-						{/* TODO: change the input to textArea */}
 						<textarea
 							required
 							rows="4"
@@ -114,7 +115,7 @@ export default function Form() {
 				>
 					<h1 className={classes.title}>Scope of the Rule</h1>
 					<div className={classes.ruleScope__container}>
-						{renderDataBoxes()}
+						<DataBoxes />
 					</div>
 					<h1>Client</h1>
 					<label></label>
@@ -163,7 +164,7 @@ export default function Form() {
 				>
 					<h1 className={classes.title}>Scope of the Rule</h1>
 					<div className={classes.ruleScope__container}>
-						{renderDataBoxes()}
+						<DataBoxes />
 					</div>
 					<h1>Pages to Fire</h1>
 					<PageSelector
@@ -189,7 +190,7 @@ export default function Form() {
 				>
 					<h1 className={classes.title}>Scope of the Rule</h1>
 					<div className={classes.ruleScope__container}>
-						{renderDataBoxes()}
+						<DataBoxes />
 					</div>
 					<h1>Pixels to be Placed</h1>
 					<PixelCard
@@ -210,7 +211,9 @@ export default function Form() {
 					}
 				>
 					<h1 className={classes.title}>Data Preview</h1>
-					
+					<div className={classes.ruleScope__container}>
+						<DataBoxes />
+					</div>
 					<br />
 				</div>
 			)}
@@ -234,17 +237,11 @@ export default function Form() {
 						</button>
 
 					</div>
-					<Card>
-						<pre>{JSON.stringify(watch(), null, 2)}</pre>
-					</Card>
 				</>
 			);
 		} else if (formStep === 4) {
 			return (
 				<>
-					<Card>
-						<pre className={classes.textJson}>{JSON.stringify(watch(), null, 2)}</pre>
-					</Card>
 					<div className={classes.actions}>
 
 						<button onClick={previousScreen} type="button">Go back</button>
@@ -265,9 +262,6 @@ export default function Form() {
 					</button>
 
 				</div>
-				<Card>
-					<pre>{JSON.stringify(watch(), null, 2)}</pre>
-				</Card>
 				</>
 			);
 		} else if (formStep === 2) {
@@ -285,9 +279,6 @@ export default function Form() {
 							Next
 						</button>
 					</div>
-					<Card>
-						<pre>{JSON.stringify(watch(), null, 2)}</pre>
-					</Card>
 				</>
 			);
 		} else {
@@ -305,9 +296,6 @@ export default function Form() {
 							Next
 						</button>
 					</div>
-					<Card>
-						<pre>{JSON.stringify(watch(), null, 2)}</pre>
-					</Card>
 				</>
 			);
 		}
@@ -334,7 +322,7 @@ export default function Form() {
 	function previousScreen() {
 		setFormStep((formStep) => formStep - 1);
 	}
-	function renderDataBoxes() {
+	function DataBoxes() {
 		var currentDataObj = watch();
 		var currentDataArr = Object.keys(currentDataObj).map((currentProperty) => {
 			return {
@@ -343,16 +331,50 @@ export default function Form() {
 			};
 		});
 
-		var $currentData = currentDataArr.map((field) => {
+		// we need to use exceptions because in currentDataArr.fieldValue we store strings, arrays (for pages) and objects (for each pixel),
+		// so as to render them correctly
+		return (
+			<Card>
+				{currentDataArr.map((field) => {
+					if (field.fieldName === "Pages") {
+						return (
+							<div key={field.fieldName} className={classes.fieldsContainer}>
+								<span className={classes.fieldName}>{field.fieldName}</span>
+								<ul className={classes.ruleList}>
+									{field.fieldValue.map((page, index) => <li key={page}>{page}</li>)}
+								</ul>
+							</div>
+						)
+					} else if (Object.prototype.toString.call(field.fieldValue) === '[object Object]') {
+						return (
+							<div key={field.fieldName} className={classes.fieldsContainer}>
+								<span className={classes.fieldName}>{field.fieldName}:</span>
+							
+								{renderPixel(field.fieldValue)}
+							</div>
+						)
+					} else {
+						return (
+							<div key={field.fieldName} className={classes.fieldsContainer}>
+								<span className={classes.fieldName}>{field.fieldName}:</span>
+								<span>{field.fieldValue}</span>
+							</div>
+						);
+					}
+				})}
+			</Card>
+		)
+
+		function renderPixel(pixelObj) {
 			return (
-				<div
-					key={field.fieldName}
-					className={classes.dataField}
-				>{`${field.fieldName}: ${field.fieldValue}`}</div>
-			);
-		});
-		return <>{$currentData}</>;
+				<ul className={classes.ruleList}>
+					<li>Type: {pixelObj.type}</li>
+					<li>ID: {pixelObj.id}</li>
+				</ul>
+			)
+		}
 	}
+
 	// from Pages to fire
 	function validateCheckBoxes(event) {
 		// Fetching DOM elements
@@ -365,7 +387,7 @@ export default function Form() {
 		const $errorMessage = document.querySelector(
 			`.${classes.errorMessage}.${classes.pageError}`
 		);
-
+		
 		// If what fires the event is a checkbox, this way we can save some space in the ifs
 		const isCheckbox =
 			event.target instanceof HTMLLabelElement ||
@@ -375,8 +397,11 @@ export default function Form() {
 				: false;
 
 		if (isCheckbox && !currentFormInvalid(2)) {
+
 			$errorMessage.classList.add(`${classes.displayHidden}`);
+			
 		} else if (event.target instanceof HTMLButtonElement) {
+
 			if ($validCheckboxes.length === 0 && !currentFormInvalid(2)) {
 				$errorMessage.classList.remove(`${classes.displayHidden}`);
 				return false;

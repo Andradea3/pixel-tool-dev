@@ -80,22 +80,24 @@
 .ruleScope__container {
 	min-height: 200px;
 	width: 100%;
-	display: flex;
+	/* display: flex;
 	flex-wrap: wrap;
-	align-items: flex-start;
-}
-.dataField {
-	background-color: #02123A;
-	color: #fafafa;
-	padding: 15px 10px;
-	border-radius: 10px;
-	margin-right: 20px; 
-	margin-bottom: 20px; 
-}
-.title {
-	margin-bottom: 40px;
+	align-items: flex-start; */
 }
 
+.fieldsContainer {
+	display: flex;
+	margin-bottom: 10px;
+}
+.fieldName {
+	font-weight: bold;
+	margin-right: 10px;
+	font-size: 1.1rem;
+	
+}
+.ruleList{
+	margin-left: 15px;
+}
 .btnDelete{
 	align-self: end;
 	font-size: 20px;
@@ -115,4 +117,5 @@
 .textJson{
 	font-size: 15px;
 	letter-spacing: 0.3px;
+	white-space: pre-wrap;
 }

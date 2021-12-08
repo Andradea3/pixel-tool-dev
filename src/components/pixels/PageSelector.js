@@ -50,6 +50,7 @@ function PageSelector({setVal, watch, validateCheckBoxes}) {
           )}
 
           {watch("pixelPageScope") === "Custom" && (
+            
             <CustomInputs />
           )}
           
@@ -374,7 +375,7 @@ function PageSelector({setVal, watch, validateCheckBoxes}) {
     // !TODO conditionally render defaultChecked elements
     const currentPagesToFire = watch("Pages") ;
     if (currentPagesToFire !== undefined) {
-
+      
       var currentDataArr = Array.from(currentPagesToFire);
       
     }
@@ -388,7 +389,7 @@ function PageSelector({setVal, watch, validateCheckBoxes}) {
           name="edp"  
           id="edp"
           type="checkbox" 
-          defaultChecked={currentPagesToFire ? currentDataArr.includes("EDP") : false}
+         defaultChecked={currentPagesToFire ? currentDataArr.includes("EDP") : false}
         />
         </label>
         <label htmlFor="selectTickets">
@@ -427,7 +428,7 @@ function PageSelector({setVal, watch, validateCheckBoxes}) {
             name="payment"
             type="checkbox"
             id="payment"
-            defaultChecked={currentPagesToFire ? currentDataArr.includes("Enter Payment") : false}
+           defaultChecked={currentPagesToFire ? currentDataArr.includes("Enter Payment") : false}
           />
         </label>
         
