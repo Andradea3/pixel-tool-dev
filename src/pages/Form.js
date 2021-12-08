@@ -193,6 +193,7 @@ export default function Form() {
 					</div>
 					<h1>Pixels to be Placed</h1>
 					<PixelCard
+						watch={watch}
 						register={register}
 						unregister={unregister}
 						formErrors={errors}
