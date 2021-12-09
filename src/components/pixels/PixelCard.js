@@ -3,21 +3,19 @@ import Card from "../ui/Card";
 import classes from "../layout/StandardClasses.module.css";
 
 
-export default function Row({ onChange, register, unregister, watch}) {
+export default function Row({ register, unregister, watch, formErrors}) {
 
   const [cards, setCards] = useState([{ id: 0, text: "" }]);
 
-
-  const handleOnAdd = (index) => {
-
-    console.log();
-
-    if (watch(`Pixel ${index}.id`)=== "") {
-      console.log("funcion");
-      return;
+  const handleOnAdd = (lastCardIndex) => {
+    //Avoiding the user to add another pixel without filling prev
+    if (watch(`Pixel ${lastCardIndex}.id`) === "") {
+      return false;
     }
-
+    
+    //adding a new set of cards
     setCards([...cards, { id: cards.length, text: "" }]);
+    
 
   };
 
@@ -27,15 +25,7 @@ export default function Row({ onChange, register, unregister, watch}) {
     setCards(copyRows);
   };
 
-  const isEmpty = (obj) => {
-    for (var prop in obj) {
-      if (Object.prototype.hasOwnProperty.call(obj, prop)) {
-        return false;
-      }
-    }
-
-    return JSON.stringify(obj) === JSON.stringify({});
-  }
+  
   return (
     <>
       <>
@@ -87,11 +77,14 @@ export default function Row({ onChange, register, unregister, watch}) {
                 type="text"
                 id="pixelid"
                 //----------------------------------
-                //value={card.text}
-                //onChange={handleChange(card.id)}
                 {...register(`Pixel ${index + 1}.id`, { required: true })}
               />
-    
+              { /* showing error if pixel id input is empty */ 
+              ( watch(`Pixel ${index + 1}.id`) === undefined ||
+                watch(`Pixel ${index + 1}.id`) === ""
+                ) && (
+							  <p className={classes.errorMessage}>This field is required</p>
+						  )}
     
             </div> <br />
           </Card>

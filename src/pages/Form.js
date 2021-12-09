@@ -222,7 +222,6 @@ export default function Form() {
 	);
 
 	function renderButtons(formStep) {
-
 		if (formStep > 4) {
 			return null;
 		} else if (formStep === 3) {
@@ -232,7 +231,11 @@ export default function Form() {
 						<button onClick={previousScreen} type="button">
 							Go back
 						</button>
-						<button onClick={nextScreen} type="button">
+						<button 
+							onClick={nextScreen} 
+							type="button"
+							disabled={currentFormInvalid(formStep)}
+						>
 							Preview
 						</button>
 
@@ -245,7 +248,9 @@ export default function Form() {
 					<div className={classes.actions}>
 
 						<button onClick={previousScreen} type="button">Go back</button>
-						<button type="button">Send</button>
+						<button 
+							type="button"
+						>Send</button>
 					</div>
 				</>
 			);
@@ -312,6 +317,10 @@ export default function Form() {
 			}
 		} else if (pageNumber === 2) {
 			if (watch("pixelPageScope") === undefined) {
+				return true;
+			}
+		} else if (pageNumber === 3) {
+			if (isValid === false) {
 				return true;
 			}
 		}
